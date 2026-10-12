@@ -1,0 +1,1 @@
+ALTER TABLE "seller_settings" ADD COLUMN "tax_percent" numeric(6, 2) DEFAULT '0' NOT NULL;

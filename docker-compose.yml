@@ -1,0 +1,25 @@
+services:
+  db:
+    image: postgres:16
+    container_name: quick_analytics_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-analytics}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-analytics}
+      POSTGRES_DB: ${POSTGRES_DB:-quick_analytics}
+    ports:
+      # Bound to loopback ON PURPOSE. Published as "5432:5432" this listens on
+      # every interface, which on a public server is an open database that
+      # scanners find within hours. The API runs on the same host, so nothing
+      # legitimate needs to reach Postgres from outside.
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - quick_analytics_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-analytics} -d ${POSTGRES_DB:-quick_analytics}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  quick_analytics_pgdata:

@@ -1,0 +1,835 @@
+<title>quickAnalytics — Backend Reference</title>
+<style>
+  :root {
+    --paper: #f6f7f9;
+    --card: #ffffff;
+    --ink: #14181f;
+    --ink-soft: #444d5c;
+    --ink-faint: #6b7686;
+    --line: #e2e6ec;
+    --line-strong: #cdd4de;
+    --accent: #2743e0;
+    --accent-soft: #eaeeff;
+    --accent-ink: #1a2fb0;
+    --good: #0f9d6b;
+    --good-soft: #e4f6ee;
+    --warn: #b5730a;
+    --warn-soft: #fbf0dc;
+    --crit: #d6304c;
+    --crit-soft: #fce6ea;
+    --term-bg: #10141c;
+    --term-line: #1e2530;
+    --term-ink: #c9d3e0;
+    --term-dim: #6b7789;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Monaco, "Cascadia Code", Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --maxw: 1080px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection { background: var(--accent); color: #fff; }
+
+  a { color: var(--accent-ink); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- Top bar ---------- */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(246,247,249,0.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .topbar .wrap {
+    display: flex; align-items: center; gap: 14px;
+    height: 56px;
+  }
+  .brand-mark {
+    font-family: var(--mono); font-weight: 700; font-size: 14px;
+    letter-spacing: -0.02em; color: var(--ink);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .brand-mark .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--good); box-shadow: 0 0 0 3px var(--good-soft); }
+  .topnav { margin-left: auto; display: flex; gap: 4px; flex-wrap: wrap; }
+  .topnav a {
+    font-family: var(--mono); font-size: 12.5px; color: var(--ink-soft);
+    padding: 6px 10px; border-radius: 6px;
+  }
+  .topnav a:hover { background: var(--accent-soft); color: var(--accent-ink); text-decoration: none; }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 68px 0 40px; border-bottom: 1px solid var(--line); }
+  .eyebrow {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--accent-ink); font-weight: 600;
+  }
+  h1 {
+    font-family: var(--mono); font-weight: 700;
+    font-size: clamp(34px, 6vw, 56px); line-height: 1.02;
+    letter-spacing: -0.035em; margin: 16px 0 0; text-wrap: balance;
+  }
+  h1 .thin { color: var(--ink-faint); font-weight: 500; }
+  .lede {
+    font-size: clamp(17px, 2.4vw, 21px); color: var(--ink-soft);
+    max-width: 60ch; margin: 20px 0 0; line-height: 1.5;
+  }
+  .stackrow { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+  .chip {
+    font-family: var(--mono); font-size: 12.5px; font-weight: 500;
+    padding: 5px 11px; border-radius: 999px;
+    border: 1px solid var(--line-strong); background: var(--card); color: var(--ink-soft);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .chip b { color: var(--ink); font-weight: 700; }
+
+  .statusline {
+    margin-top: 30px; display: flex; flex-wrap: wrap; gap: 10px 22px;
+    padding: 16px 20px; border-radius: 12px;
+    background: var(--card); border: 1px solid var(--line);
+    font-family: var(--mono); font-size: 13px;
+  }
+  .statusline .k { color: var(--ink-faint); }
+  .statusline .v { color: var(--ink); font-weight: 600; }
+  .statusline .ok { color: var(--good); }
+
+  /* ---------- Sections ---------- */
+  section { padding: 56px 0; border-bottom: 1px solid var(--line); }
+  .sec-num {
+    font-family: var(--mono); font-size: 12px; color: var(--accent-ink);
+    letter-spacing: 0.1em; font-weight: 600;
+  }
+  h2 {
+    font-family: var(--mono); font-weight: 700; font-size: clamp(24px, 3.5vw, 32px);
+    letter-spacing: -0.025em; margin: 8px 0 0; text-wrap: balance;
+  }
+  h2 + .sub { color: var(--ink-soft); margin: 12px 0 0; max-width: 65ch; }
+  h3 {
+    font-family: var(--mono); font-size: 17px; font-weight: 700;
+    letter-spacing: -0.01em; margin: 40px 0 0;
+  }
+  p { margin: 14px 0 0; }
+  .muted { color: var(--ink-faint); }
+
+  /* ---------- Cards / grids ---------- */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 28px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 28px; }
+  @media (max-width: 720px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 22px;
+  }
+  .card h4 {
+    font-family: var(--mono); font-size: 15px; margin: 0; font-weight: 700;
+    display: flex; align-items: center; gap: 9px;
+  }
+  .card p { font-size: 14.5px; }
+  .card .icon {
+    width: 26px; height: 26px; border-radius: 7px; flex: none;
+    display: grid; place-items: center; font-size: 14px;
+    background: var(--accent-soft); color: var(--accent-ink);
+  }
+
+  /* ---------- Method chips & endpoint blocks ---------- */
+  .endpoint {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    margin-top: 16px; overflow: hidden;
+  }
+  .endpoint-head {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    padding: 16px 20px; border-bottom: 1px solid var(--line);
+  }
+  .verb {
+    font-family: var(--mono); font-weight: 700; font-size: 12px;
+    letter-spacing: 0.03em; padding: 4px 9px; border-radius: 6px; color: #fff;
+    flex: none;
+  }
+  .verb.get { background: var(--good); }
+  .verb.post { background: var(--accent); }
+  .verb.patch { background: var(--warn); }
+  .path {
+    font-family: var(--mono); font-size: 15px; font-weight: 600; color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .path .param { color: var(--accent-ink); }
+  .lock {
+    margin-left: auto; font-family: var(--mono); font-size: 11.5px;
+    padding: 3px 9px; border-radius: 999px; display: inline-flex; align-items: center; gap: 5px;
+  }
+  .lock.jwt { background: var(--warn-soft); color: var(--warn); }
+  .lock.open { background: var(--good-soft); color: var(--good); }
+  .endpoint-body { padding: 18px 20px; }
+  .endpoint-body > .desc { margin: 0 0 4px; font-size: 14.5px; color: var(--ink-soft); }
+
+  .io-label {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--ink-faint); font-weight: 600;
+    margin: 18px 0 8px;
+  }
+
+  /* ---------- Code / terminal panels ---------- */
+  pre {
+    margin: 0; background: var(--term-bg); color: var(--term-ink);
+    border-radius: 10px; padding: 16px 18px; overflow-x: auto;
+    font-family: var(--mono); font-size: 13px; line-height: 1.65;
+    border: 1px solid var(--term-line);
+  }
+  pre .c { color: var(--term-dim); }        /* comment / dim */
+  pre .k { color: #8ab4ff; }                /* key */
+  pre .s { color: #7fd6a6; }                /* string */
+  pre .n { color: #e0a878; }                /* number/bool */
+  pre .m { color: #f2f5fa; font-weight: 700; } /* method/emphasis */
+  code.inline {
+    font-family: var(--mono); font-size: 0.88em;
+    background: var(--accent-soft); color: var(--accent-ink);
+    padding: 2px 6px; border-radius: 5px;
+  }
+
+  /* ---------- Param table ---------- */
+  .tablewrap { overflow-x: auto; margin-top: 8px; border: 1px solid var(--line); border-radius: 10px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink-faint); font-weight: 600; background: #fafbfc;
+  }
+  tr:last-child td { border-bottom: none; }
+  td.field { font-family: var(--mono); color: var(--ink); font-weight: 600; white-space: nowrap; }
+  td.type { font-family: var(--mono); color: var(--accent-ink); font-size: 12.5px; white-space: nowrap; }
+  .req-tag { font-family: var(--mono); font-size: 10px; color: var(--crit); font-weight: 700; }
+  td .tnum { font-variant-numeric: tabular-nums; }
+
+  /* ---------- Pills ---------- */
+  .pill { font-family: var(--mono); font-size: 11.5px; padding: 2px 8px; border-radius: 999px; font-weight: 600; }
+  .pill.good { background: var(--good-soft); color: var(--good); }
+  .pill.warn { background: var(--warn-soft); color: var(--warn); }
+
+  /* ---------- Flow diagram ---------- */
+  .flow {
+    display: flex; align-items: stretch; gap: 0; margin-top: 24px;
+    overflow-x: auto; padding-bottom: 6px;
+  }
+  .node {
+    flex: 1 1 0; min-width: 140px;
+    background: var(--card); border: 1px solid var(--line-strong); border-radius: 12px;
+    padding: 14px 16px;
+  }
+  .node .nlabel { font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--ink); }
+  .node .ndesc { font-size: 12.5px; color: var(--ink-faint); margin-top: 5px; line-height: 1.4; }
+  .node.accent { border-color: var(--accent); background: var(--accent-soft); }
+  .node.accent .nlabel { color: var(--accent-ink); }
+  .arrow {
+    flex: none; align-self: center; width: 34px; text-align: center;
+    font-family: var(--mono); color: var(--line-strong); font-size: 20px;
+  }
+  @media (max-width: 720px) {
+    .flow { flex-direction: column; }
+    .arrow { transform: rotate(90deg); width: 100%; height: 24px; }
+  }
+
+  /* ---------- Callout ---------- */
+  .callout {
+    margin-top: 24px; border-radius: 12px; padding: 18px 20px;
+    border: 1px solid var(--warn); background: var(--warn-soft);
+    display: flex; gap: 14px;
+  }
+  .callout .ci { font-size: 20px; flex: none; }
+  .callout h4 { margin: 0 0 4px; font-family: var(--mono); font-size: 14px; color: var(--warn); }
+  .callout p { margin: 0; font-size: 14px; color: #6e4a09; }
+  .callout code.inline { background: #fff3dd; color: #6e4a09; }
+
+  /* ---------- Module map ---------- */
+  .modmap { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-top: 24px; }
+  .mod {
+    border: 1px solid var(--line); border-radius: 11px; padding: 14px 16px; background: var(--card);
+  }
+  .mod .mname { font-family: var(--mono); font-weight: 700; font-size: 13.5px; color: var(--accent-ink); }
+  .mod .mfiles { font-family: var(--mono); font-size: 11.5px; color: var(--ink-faint); margin-top: 6px; line-height: 1.55; }
+
+  /* ---------- Footer ---------- */
+  footer { padding: 40px 0 64px; }
+  footer .wrap { color: var(--ink-faint); font-family: var(--mono); font-size: 12.5px; }
+
+  .anchor { scroll-margin-top: 72px; }
+</style>
+
+<div class="topbar">
+  <div class="wrap">
+    <span class="brand-mark"><span class="dot"></span>quickAnalytics</span>
+    <nav class="topnav">
+      <a href="#overview">overview</a>
+      <a href="#architecture">architecture</a>
+      <a href="#flows">data flow</a>
+      <a href="#auth">auth</a>
+      <a href="#api">api</a>
+      <a href="#schema">schema</a>
+      <a href="#security">security</a>
+      <a href="#run">run</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Backend Reference · v0.0.1</div>
+    <h1>quickAnalytics <span class="thin">back</span></h1>
+    <p class="lede">A product-analytics backend that does two jobs: ingest &amp; report on arbitrary events, and keep a Kaspi.kz seller's product catalog mirrored in Postgres — logging in headlessly and re-syncing every hour.</p>
+
+    <div class="stackrow">
+      <span class="chip"><b>NestJS</b> 11</span>
+      <span class="chip"><b>Bun</b> runtime</span>
+      <span class="chip"><b>Drizzle</b> ORM</span>
+      <span class="chip"><b>PostgreSQL</b> 16</span>
+      <span class="chip"><b>JWT</b> passport</span>
+      <span class="chip"><b>Swagger</b> /docs</span>
+      <span class="chip"><b>TypeScript</b> 5.7</span>
+    </div>
+
+    <div class="statusline">
+      <span><span class="k">status</span> &nbsp;<span class="v ok">● verified running</span></span>
+      <span><span class="k">checked</span> &nbsp;<span class="v">2026-07-08</span></span>
+      <span><span class="k">build</span> &nbsp;<span class="v ok">passing</span></span>
+      <span><span class="k">typecheck</span> &nbsp;<span class="v ok">clean</span></span>
+      <span><span class="k">endpoints</span> &nbsp;<span class="v">12</span></span>
+    </div>
+  </div>
+</header>
+
+<!-- ============ OVERVIEW ============ -->
+<section id="overview" class="anchor">
+  <div class="wrap">
+    <div class="sec-num">01</div>
+    <h2>What it does</h2>
+    <p class="sub">Two independent capabilities live in one service. They share a database, a config layer, and an account system — but the event pipeline and the Kaspi integration never touch each other.</p>
+
+    <div class="grid2">
+      <div class="card">
+        <h4><span class="icon">◇</span> Event analytics</h4>
+        <p>A minimal event sink. Post single events or batches of up to 1,000; every event is a row with a name, an optional user identity, a timestamp, and free-form JSON <code class="inline">properties</code>. Three read endpoints aggregate them: volume over time, top events, and unique-user counts — each filterable by time window and event name.</p>
+      </div>
+      <div class="card">
+        <h4><span class="icon">◈</span> Kaspi seller sync</h4>
+        <p>Register a Kaspi.kz merchant with just an email + password. The backend logs in headlessly (SSO → OAuth2), derives the merchant UID, and pulls the entire product catalog into Postgres. It re-syncs hourly, auto-refreshes expired sessions, soft-archives vanished SKUs, and lets you attach a private cost price (COGS) to each product.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <span class="ci">⚠</span>
+      <div>
+        <h4>Auth coverage is uneven — by design or gap?</h4>
+        <p>The <code class="inline">/kaspi/*</code> routes require a JWT. The <code class="inline">/events</code> and <code class="inline">/reports</code> routes currently have <b>no guard</b> — anyone can ingest events and read every report without a token. That's fine for public ingestion behind a write-key, but open reports may be unintended. Flagged during the 2026-07-08 review.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ARCHITECTURE ============ -->
+<section id="architecture" class="anchor">
+  <div class="wrap">
+    <div class="sec-num">02</div>
+    <h2>Architecture</h2>
+    <p class="sub">A standard NestJS module graph. <code class="inline">AppModule</code> wires seven feature modules; a global <code class="inline">DatabaseModule</code> exposes one shared Drizzle client via the <code class="inline">DRIZZLE</code> injection token.</p>
+
+    <div class="modmap">
+      <div class="mod"><div class="mname">AuthModule</div><div class="mfiles">controller · service<br>jwt.strategy · guard<br>register/login DTOs</div></div>
+      <div class="mod"><div class="mname">EventsModule</div><div class="mfiles">controller · service<br>ingest-event DTO<br>ingest-batch DTO</div></div>
+      <div class="mod"><div class="mname">ReportsModule</div><div class="mfiles">controller · service<br>report-query DTO</div></div>
+      <div class="mod"><div class="mname">KaspiModule</div><div class="mfiles">controller · service<br>kaspi.client · auth.client<br>scheduler (cron)</div></div>
+      <div class="mod"><div class="mname">DatabaseModule</div><div class="mfiles">@Global<br>postgres-js pool<br>Drizzle + schema</div></div>
+      <div class="mod"><div class="mname">HealthModule</div><div class="mfiles">controller<br>DB ping</div></div>
+      <div class="mod"><div class="mname">ConfigModule</div><div class="mfiles">@Global<br>env.validation.ts<br>fail-fast on boot</div></div>
+    </div>
+
+    <h3>Request lifecycle</h3>
+    <div class="flow">
+      <div class="node"><div class="nlabel">HTTP request</div><div class="ndesc">Express platform adapter</div></div>
+      <div class="arrow">→</div>
+      <div class="node"><div class="nlabel">ValidationPipe</div><div class="ndesc">whitelist + transform, rejects unknown fields</div></div>
+      <div class="arrow">→</div>
+      <div class="node accent"><div class="nlabel">JwtAuthGuard</div><div class="ndesc">Kaspi routes only</div></div>
+      <div class="arrow">→</div>
+      <div class="node"><div class="nlabel">Controller</div><div class="ndesc">DTO in, delegates to service</div></div>
+      <div class="arrow">→</div>
+      <div class="node"><div class="nlabel">Service + Drizzle</div><div class="ndesc">typed SQL → Postgres</div></div>
+    </div>
+    <p class="muted" style="font-size:14px;">A global <code class="inline">ValidationPipe</code> runs with <code class="inline">whitelist</code>, <code class="inline">forbidNonWhitelisted</code>, and <code class="inline">transform</code> enabled, so every request body/query is validated against its DTO and stripped of unknown keys before a controller ever sees it. Shutdown hooks are enabled for graceful drain.</p>
+  </div>
+</section>
+
+<!-- ============ DATA FLOWS ============ -->
+<section id="flows" class="anchor">
+  <div class="wrap">
+    <div class="sec-num">03</div>
+    <h2>Data flows</h2>
+    <p class="sub">The two pipelines, end to end.</p>
+
+    <h3>① Event ingestion → reporting</h3>
+    <div class="flow">
+      <div class="node"><div class="nlabel">POST /events</div><div class="ndesc">single or /batch (≤1000)</div></div>
+      <div class="arrow">→</div>
+      <div class="node"><div class="nlabel">events table</div><div class="ndesc">one row each; JSONB props + context; indexed on name+time</div></div>
+      <div class="arrow">→</div>
+      <div class="node accent"><div class="nlabel">GET /reports/*</div><div class="ndesc">date_trunc buckets, top-N, distinct users</div></div>
+    </div>
+
+    <h3>② Kaspi seller sync</h3>
+    <div class="flow">
+      <div class="node"><div class="nlabel">POST /kaspi/sellers</div><div class="ndesc">login + password</div></div>
+      <div class="arrow">→</div>
+      <div class="node"><div class="nlabel">headless login</div><div class="ndesc">idmc SSO → OAuth2 → mc-sid + mc-session cookie</div></div>
+      <div class="arrow">→</div>
+      <div class="node"><div class="nlabel">derive UID</div><div class="ndesc">GET /s/m → merchant uid</div></div>
+      <div class="arrow">→</div>
+      <div class="node"><div class="nlabel">fetch offers</div><div class="ndesc">paged BFF, 100/page</div></div>
+      <div class="arrow">→</div>
+      <div class="node accent"><div class="nlabel">upsert products</div><div class="ndesc">on (seller, sku); archive vanished; keep costPrice</div></div>
+    </div>
+    <p class="muted" style="font-size:14px;">The sync runs on demand (<code class="inline">POST /kaspi/sellers/:id/sync</code>) and automatically <b>every hour</b> via <code class="inline">@Cron</code>. On an auth failure it re-logs-in from the stored (encrypted) credentials and retries once before flagging the seller <span class="pill warn">needs_reauth</span>.</p>
+  </div>
+</section>
+
+<!-- ============ AUTH ============ -->
+<section id="auth" class="anchor">
+  <div class="wrap">
+    <div class="sec-num">04</div>
+    <h2>Authentication</h2>
+    <p class="sub">Accounts are our own analytics accounts — one account owns one or more Kaspi sellers. Register or log in, then send the returned token as a bearer header on Kaspi routes.</p>
+
+    <div class="grid2">
+      <div class="card">
+        <h4><span class="icon">🔑</span> The token</h4>
+        <p>A 7-day HS256 JWT signed with <code class="inline">JWT_SECRET</code>. Payload is <code class="inline">{ sub: userId, email }</code>. Passport's JWT strategy validates it and attaches <code class="inline">{ userId, email }</code> to the request, read via the <code class="inline">@CurrentUser()</code> decorator.</p>
+      </div>
+      <div class="card">
+        <h4><span class="icon">🛡</span> Ownership</h4>
+        <p>Every Kaspi route resolves the seller and checks <code class="inline">seller.userId === user.userId</code>, returning <span class="pill warn">403</span> otherwise. One user can never see or sync another user's sellers or products.</p>
+      </div>
+    </div>
+
+    <div class="io-label">Send the token</div>
+<pre><span class="c"># On every /kaspi/* request:</span>
+<span class="k">Authorization</span>: <span class="m">Bearer</span> <span class="s">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9…</span></pre>
+  </div>
+</section>
+
+<!-- ============ API ============ -->
+<section id="api" class="anchor">
+  <div class="wrap">
+    <div class="sec-num">05</div>
+    <h2>API reference</h2>
+    <p class="sub">All 12 endpoints. Base URL <code class="inline">http://localhost:3000</code>. Interactive Swagger UI is served at <code class="inline">/docs</code> and the OpenAPI JSON at <code class="inline">/docs-json</code>.</p>
+
+    <!-- AUTH -->
+    <h3>auth <span class="muted">— registration &amp; login</span></h3>
+
+    <div class="endpoint">
+      <div class="endpoint-head">
+        <span class="verb post">POST</span>
+        <span class="path">/auth/register</span>
+        <span class="lock open">◯ public</span>
+      </div>
+      <div class="endpoint-body">
+        <p class="desc">Create an account. Password is stored as a one-way scrypt hash. Returns a 7-day JWT.</p>
+        <div class="io-label">Request body</div>
+        <div class="tablewrap"><table>
+          <tr><th>Field</th><th>Type</th><th>Notes</th></tr>
+          <tr><td class="field">email <span class="req-tag">REQ</span></td><td class="type">string</td><td>Valid email; lower-cased. <span class="pill warn">409</span> if taken.</td></tr>
+          <tr><td class="field">password <span class="req-tag">REQ</span></td><td class="type">string</td><td>Min 8 characters.</td></tr>
+          <tr><td class="field">name <span class="req-tag">REQ</span></td><td class="type">string</td><td>Display name, non-empty.</td></tr>
+        </table></div>
+        <div class="io-label">201 Response</div>
+<pre>{
+  <span class="k">"accessToken"</span>: <span class="s">"eyJhbGciOiJIU…"</span>,
+  <span class="k">"user"</span>: {
+    <span class="k">"id"</span>: <span class="s">"d62922a1-3ac4-4775-ab33-1f3b37a3a62e"</span>,
+    <span class="k">"email"</span>: <span class="s">"owner@example.kz"</span>,
+    <span class="k">"name"</span>: <span class="s">"Max"</span>
+  }
+}</pre>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-head">
+        <span class="verb post">POST</span>
+        <span class="path">/auth/login</span>
+        <span class="lock open">◯ public</span>
+      </div>
+      <div class="endpoint-body">
+        <p class="desc">Exchange email + password for a fresh JWT. <span class="pill warn">401</span> on bad credentials (constant-time compare).</p>
+        <div class="io-label">Request body</div>
+<pre>{ <span class="k">"email"</span>: <span class="s">"owner@example.kz"</span>, <span class="k">"password"</span>: <span class="s">"S3curePass!"</span> }</pre>
+        <div class="io-label">200 Response — same shape as register</div>
+<pre>{ <span class="k">"accessToken"</span>: <span class="s">"…"</span>, <span class="k">"user"</span>: { <span class="k">"id"</span>: <span class="s">"…"</span>, <span class="k">"email"</span>: <span class="s">"…"</span>, <span class="k">"name"</span>: <span class="s">"…"</span> } }</pre>
+      </div>
+    </div>
+
+    <!-- EVENTS -->
+    <h3>events <span class="muted">— ingestion</span></h3>
+
+    <div class="endpoint">
+      <div class="endpoint-head">
+        <span class="verb post">POST</span>
+        <span class="path">/events</span>
+        <span class="lock open">◯ public</span>
+      </div>
+      <div class="endpoint-body">
+        <p class="desc">Ingest one event. Returns the new row id.</p>
+        <div class="io-label">Request body</div>
+        <div class="tablewrap"><table>
+          <tr><th>Field</th><th>Type</th><th>Notes</th></tr>
+          <tr><td class="field">eventName <span class="req-tag">REQ</span></td><td class="type">string</td><td>e.g. <code class="inline">page_view</code></td></tr>
+          <tr><td class="field">distinctId</td><td class="type">string</td><td>Known/resolved user id (used by unique-users).</td></tr>
+          <tr><td class="field">anonymousId</td><td class="type">string</td><td>Pre-identify device id.</td></tr>
+          <tr><td class="field">sessionId</td><td class="type">string</td><td>Session grouping.</td></tr>
+          <tr><td class="field">properties</td><td class="type">object</td><td>Arbitrary JSON; defaults to <code class="inline">{}</code>.</td></tr>
+          <tr><td class="field">context</td><td class="type">object</td><td>Device/request context JSON.</td></tr>
+          <tr><td class="field">timestamp</td><td class="type">ISO 8601</td><td>Occurrence time; defaults to server <code class="inline">now()</code>.</td></tr>
+        </table></div>
+        <div class="io-label">Example</div>
+<pre><span class="m">POST</span> /events
+{
+  <span class="k">"eventName"</span>: <span class="s">"page_view"</span>,
+  <span class="k">"distinctId"</span>: <span class="s">"user_123"</span>,
+  <span class="k">"properties"</span>: { <span class="k">"path"</span>: <span class="s">"/home"</span>, <span class="k">"referrer"</span>: <span class="s">"google"</span> }
+}
+<span class="c">→ 201  { "id": "52d452a4-2dd0-442f-a45c-a273e8d7b08d" }</span></pre>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-head">
+        <span class="verb post">POST</span>
+        <span class="path">/events/batch</span>
+        <span class="lock open">◯ public</span>
+      </div>
+      <div class="endpoint-body">
+        <p class="desc">Ingest 1–1000 events in one insert. Each element follows the single-event schema above.</p>
+<pre><span class="m">POST</span> /events/batch
+{ <span class="k">"events"</span>: [
+    { <span class="k">"eventName"</span>: <span class="s">"click"</span>, <span class="k">"distinctId"</span>: <span class="s">"u1"</span> },
+    { <span class="k">"eventName"</span>: <span class="s">"click"</span>, <span class="k">"distinctId"</span>: <span class="s">"u2"</span> }
+] }
+<span class="c">→ 201  { "inserted": 2 }</span></pre>
+      </div>
+    </div>
+
+    <!-- REPORTS -->
+    <h3>reports <span class="muted">— aggregation</span></h3>
+    <p class="muted" style="font-size:14px; margin-top:14px;">All three share the same query params: <code class="inline">from</code>, <code class="inline">to</code> (ISO 8601 range, inclusive), <code class="inline">event</code> (filter to one name), plus endpoint-specific <code class="inline">interval</code> and <code class="inline">limit</code>.</p>
+
+    <div class="endpoint">
+      <div class="endpoint-head">
+        <span class="verb get">GET</span>
+        <span class="path">/reports/event-counts</span>
+        <span class="lock open">◯ public</span>
+      </div>
+      <div class="endpoint-body">
+        <p class="desc">Event volume bucketed by time. <code class="inline">interval</code> ∈ <code class="inline">hour · day · week · month</code> (default <code class="inline">day</code>), applied via Postgres <code class="inline">date_trunc</code>.</p>
+<pre><span class="m">GET</span> /reports/event-counts?interval=day&from=2026-07-01T00:00:00Z
+<span class="c">→ 200</span>  [ { <span class="k">"bucket"</span>: <span class="s">"2026-07-08 00:00:00+00"</span>, <span class="k">"count"</span>: <span class="n">3</span> } ]</pre>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-head">
+        <span class="verb get">GET</span>
+        <span class="path">/reports/top-events</span>
+        <span class="lock open">◯ public</span>
+      </div>
+      <div class="endpoint-body">
+        <p class="desc">Most frequent events, descending. <code class="inline">limit</code> 1–100 (default 10).</p>
+<pre><span class="m">GET</span> /reports/top-events?limit=10
+<span class="c">→ 200</span>  [ { <span class="k">"eventName"</span>: <span class="s">"click"</span>, <span class="k">"count"</span>: <span class="n">2</span> },
+        { <span class="k">"eventName"</span>: <span class="s">"page_view"</span>, <span class="k">"count"</span>: <span class="n">1</span> } ]</pre>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-head">
+        <span class="verb get">GET</span>
+        <span class="path">/reports/unique-users</span>
+        <span class="lock open">◯ public</span>
+      </div>
+      <div class="endpoint-body">
+        <p class="desc">Distinct <code class="inline">distinctId</code> count in the window.</p>
+<pre><span class="m">GET</span> /reports/unique-users
+<span class="c">→ 200</span>  { <span class="k">"uniqueUsers"</span>: <span class="n">2</span> }</pre>
+      </div>
+    </div>
+
+    <!-- KASPI -->
+    <h3>kaspi <span class="muted">— sellers &amp; products · all require JWT</span></h3>
+
+    <div class="endpoint">
+      <div class="endpoint-head">
+        <span class="verb post">POST</span>
+        <span class="path">/kaspi/sellers</span>
+        <span class="lock jwt">🔒 JWT</span>
+      </div>
+      <div class="endpoint-body">
+        <p class="desc">Register a Kaspi merchant. <b>Recommended:</b> send <code class="inline">kaspiLogin</code> + <code class="inline">kaspiPassword</code> — the backend logs in headlessly, mints the session, and auto-derives the merchant UID. All secrets are AES-256-GCM encrypted at rest and never returned.</p>
+        <div class="io-label">Request body</div>
+        <div class="tablewrap"><table>
+          <tr><th>Field</th><th>Type</th><th>Notes</th></tr>
+          <tr><td class="field">name <span class="req-tag">REQ</span></td><td class="type">string</td><td>Display name for the seller.</td></tr>
+          <tr><td class="field">kaspiLogin</td><td class="type">string</td><td><b>Recommended.</b> Cabinet email. Encrypted; enables auto-refresh.</td></tr>
+          <tr><td class="field">kaspiPassword</td><td class="type">string</td><td><b>Recommended.</b> Pairs with login. Encrypted.</td></tr>
+          <tr><td class="field">kaspiSessionCookie</td><td class="type">string</td><td>Legacy: pre-captured <code class="inline">mc-sid; mc-session</code>. Encrypted.</td></tr>
+          <tr><td class="field">kaspiMerchantUid</td><td class="type">string</td><td>Override; only for multi-merchant accounts.</td></tr>
+          <tr><td class="field">kaspiApiToken</td><td class="type">string</td><td>Official X-Auth-Token (future orders/sales). Encrypted.</td></tr>
+        </table></div>
+        <div class="io-label">201 Response — no secrets ever returned</div>
+<pre>{
+  <span class="k">"id"</span>: <span class="s">"cc74bc8f-b68f-4828-bf2a-040a3678c729"</span>,
+  <span class="k">"name"</span>: <span class="s">"Demo Store KZ"</span>,
+  <span class="k">"kaspiMerchantUid"</span>: <span class="s">"12345678"</span>,
+  <span class="k">"cookieStatus"</span>: <span class="s">"ok"</span>,
+  <span class="k">"lastSyncAt"</span>: <span class="n">null</span>, <span class="k">"lastSyncError"</span>: <span class="n">null</span>
+}</pre>
+        <p class="muted" style="font-size:13px;">Errors: <span class="pill warn">400</span> no credentials / multi-merchant · <span class="pill warn">401</span> Kaspi rejected login (wrong password or 2FA challenge).</p>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-head">
+        <span class="verb get">GET</span>
+        <span class="path">/kaspi/sellers</span>
+        <span class="lock jwt">🔒 JWT</span>
+      </div>
+      <div class="endpoint-body">
+        <p class="desc">List the current user's sellers only. Secret columns are never selected.</p>
+<pre><span class="c">→ 200</span>  [ { <span class="k">"id"</span>: <span class="s">"cc74bc8f-…"</span>, <span class="k">"name"</span>: <span class="s">"Demo Store KZ"</span>,
+          <span class="k">"kaspiMerchantUid"</span>: <span class="s">"12345678"</span>, <span class="k">"cookieStatus"</span>: <span class="s">"ok"</span>,
+          <span class="k">"lastSyncAt"</span>: <span class="s">"2026-05-19T11:17:58.718Z"</span> } ]</pre>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-head">
+        <span class="verb post">POST</span>
+        <span class="path">/kaspi/sellers/<span class="param">:id</span>/sync</span>
+        <span class="lock jwt">🔒 JWT</span>
+      </div>
+      <div class="endpoint-body">
+        <p class="desc">Pull every offer from Kaspi and upsert on <code class="inline">(seller, sku)</code>. Auto re-logins once on an expired session. Also runs hourly on its own.</p>
+<pre><span class="c">→ 200</span>  {
+  <span class="k">"sellerId"</span>: <span class="s">"cc74bc8f-…"</span>,
+  <span class="k">"total"</span>: <span class="n">401</span>, <span class="k">"fetched"</span>: <span class="n">401</span>,
+  <span class="k">"upserted"</span>: <span class="n">401</span>, <span class="k">"archived"</span>: <span class="n">0</span>
+}</pre>
+        <p class="muted" style="font-size:13px;"><span class="pill warn">403</span> seller belongs to another user · <span class="pill warn">401</span> session expired and couldn't refresh → flagged <span class="pill warn">needs_reauth</span>.</p>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-head">
+        <span class="verb get">GET</span>
+        <span class="path">/kaspi/sellers/<span class="param">:id</span>/products</span>
+        <span class="lock jwt">🔒 JWT</span>
+      </div>
+      <div class="endpoint-body">
+        <p class="desc">Read stored (last-synced) products from Postgres, paginated. Hides archived rows by default.</p>
+        <div class="io-label">Query params</div>
+        <div class="tablewrap"><table>
+          <tr><th>Param</th><th>Type</th><th>Notes</th></tr>
+          <tr><td class="field">search</td><td class="type">string</td><td>Substring match on title or SKU.</td></tr>
+          <tr><td class="field">available</td><td class="type">"true"|"false"</td><td>Filter by availability.</td></tr>
+          <tr><td class="field">archived</td><td class="type">"true"|"false"</td><td><code class="inline">true</code> includes vanished SKUs. Default: active only.</td></tr>
+          <tr><td class="field">page</td><td class="type">int ≥ 1</td><td>Default 1.</td></tr>
+          <tr><td class="field">limit</td><td class="type">int 1–200</td><td>Default 50.</td></tr>
+        </table></div>
+<pre><span class="c">→ 200</span>  { <span class="k">"total"</span>: <span class="n">401</span>, <span class="k">"page"</span>: <span class="n">1</span>, <span class="k">"limit"</span>: <span class="n">50</span>, <span class="k">"data"</span>: [
+    { <span class="k">"sku"</span>: <span class="s">"108513385_815903895"</span>,
+      <span class="k">"title"</span>: <span class="s">"AirRoxy осевой 16Вт, ARC 120 S"</span>,
+      <span class="k">"priceMin"</span>: <span class="n">7000</span>, <span class="k">"costPrice"</span>: <span class="n">4500</span>,
+      <span class="k">"available"</span>: <span class="n">true</span>, <span class="k">"totalStock"</span>: <span class="n">8</span>, <span class="k">"archivedAt"</span>: <span class="n">null</span> }
+] }</pre>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-head">
+        <span class="verb patch">PATCH</span>
+        <span class="path">/kaspi/sellers/<span class="param">:id</span>/products/<span class="param">:sku</span></span>
+        <span class="lock jwt">🔒 JWT</span>
+      </div>
+      <div class="endpoint-body">
+        <p class="desc">Set the seller-supplied cost price (COGS, in tenge). It persists across Kaspi syncs — the sync never overwrites it. Pass <code class="inline">null</code> to clear.</p>
+<pre><span class="m">PATCH</span> …/products/108513385_815903895
+{ <span class="k">"costPrice"</span>: <span class="n">4500</span> }
+<span class="c">→ 200</span>  { <span class="k">"sku"</span>: <span class="s">"108513385_…"</span>, <span class="k">"priceMin"</span>: <span class="n">7000</span>, <span class="k">"costPrice"</span>: <span class="n">4500</span> }</pre>
+        <p class="muted" style="font-size:13px;"><span class="pill warn">404</span> no such SKU for this seller · <span class="pill warn">403</span> seller belongs to another user.</p>
+      </div>
+    </div>
+
+    <!-- HEALTH -->
+    <h3>health</h3>
+    <div class="endpoint">
+      <div class="endpoint-head">
+        <span class="verb get">GET</span>
+        <span class="path">/health</span>
+        <span class="lock open">◯ public</span>
+      </div>
+      <div class="endpoint-body">
+        <p class="desc">Liveness + a <code class="inline">select 1</code> database ping.</p>
+<pre><span class="c">→ 200</span>  { <span class="k">"ok"</span>: <span class="n">true</span>, <span class="k">"database"</span>: <span class="s">"up"</span>, <span class="k">"timestamp"</span>: <span class="s">"2026-07-08T08:36:56.713Z"</span> }</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SCHEMA ============ -->
+<section id="schema" class="anchor">
+  <div class="wrap">
+    <div class="sec-num">06</div>
+    <h2>Data model</h2>
+    <p class="sub">Four tables, defined in Drizzle and managed by three SQL migrations. UUID primary keys throughout; foreign keys cascade on delete.</p>
+
+    <div class="grid2">
+      <div class="card">
+        <h4>users</h4>
+        <p class="muted" style="font-size:13px;margin-top:8px;">Our analytics accounts. Owns sellers.</p>
+        <div class="tablewrap" style="margin-top:12px;"><table>
+          <tr><td class="field">id</td><td class="type">uuid pk</td></tr>
+          <tr><td class="field">email</td><td class="type">text unique</td></tr>
+          <tr><td class="field">passwordHash</td><td class="type">text · scrypt</td></tr>
+          <tr><td class="field">name</td><td class="type">text</td></tr>
+          <tr><td class="field">created/updatedAt</td><td class="type">timestamptz</td></tr>
+        </table></div>
+      </div>
+      <div class="card">
+        <h4>events</h4>
+        <p class="muted" style="font-size:13px;margin-top:8px;">One row per ingested event. 4 indexes.</p>
+        <div class="tablewrap" style="margin-top:12px;"><table>
+          <tr><td class="field">id</td><td class="type">uuid pk</td></tr>
+          <tr><td class="field">eventName</td><td class="type">text</td></tr>
+          <tr><td class="field">distinctId</td><td class="type">text</td></tr>
+          <tr><td class="field">anonymousId / sessionId</td><td class="type">text</td></tr>
+          <tr><td class="field">properties / context</td><td class="type">jsonb</td></tr>
+          <tr><td class="field">eventTimestamp</td><td class="type">timestamptz</td></tr>
+          <tr><td class="field">ingestedAt</td><td class="type">timestamptz</td></tr>
+        </table></div>
+      </div>
+      <div class="card">
+        <h4>sellers</h4>
+        <p class="muted" style="font-size:13px;margin-top:8px;">Kaspi merchants. <code class="inline">*Enc</code> columns hold AES-256-GCM ciphertext.</p>
+        <div class="tablewrap" style="margin-top:12px;"><table>
+          <tr><td class="field">id</td><td class="type">uuid pk</td></tr>
+          <tr><td class="field">userId</td><td class="type">uuid fk → users</td></tr>
+          <tr><td class="field">kaspiMerchantUid</td><td class="type">text</td></tr>
+          <tr><td class="field">…SessionCookieEnc</td><td class="type">text · enc</td></tr>
+          <tr><td class="field">…Login/PasswordEnc</td><td class="type">text · enc</td></tr>
+          <tr><td class="field">…ApiTokenEnc</td><td class="type">text · enc</td></tr>
+          <tr><td class="field">cookieStatus</td><td class="type">ok | needs_reauth</td></tr>
+          <tr><td class="field">lastSyncAt / Error</td><td class="type">timestamptz / text</td></tr>
+        </table></div>
+      </div>
+      <div class="card">
+        <h4>kaspi_products</h4>
+        <p class="muted" style="font-size:13px;margin-top:8px;">Unique on <code class="inline">(sellerId, sku)</code>. Rows are never deleted — only archived.</p>
+        <div class="tablewrap" style="margin-top:12px;"><table>
+          <tr><td class="field">id</td><td class="type">uuid pk</td></tr>
+          <tr><td class="field">sellerId</td><td class="type">uuid fk → sellers</td></tr>
+          <tr><td class="field">sku · offerId · title</td><td class="type">text</td></tr>
+          <tr><td class="field">brand · masterCategory</td><td class="type">text</td></tr>
+          <tr><td class="field">priceMin / priceMax</td><td class="type">integer</td></tr>
+          <tr><td class="field">costPrice</td><td class="type">integer · user COGS</td></tr>
+          <tr><td class="field">available / totalStock</td><td class="type">bool / int</td></tr>
+          <tr><td class="field">availabilities / images</td><td class="type">jsonb</td></tr>
+          <tr><td class="field">archivedAt · kaspiUpdatedAt · syncedAt</td><td class="type">timestamptz</td></tr>
+        </table></div>
+      </div>
+    </div>
+
+    <div class="callout" style="border-color:var(--accent);background:var(--accent-soft);">
+      <span class="ci" style="color:var(--accent-ink);">◆</span>
+      <div>
+        <h4 style="color:var(--accent-ink);">The archive rule</h4>
+        <p style="color:var(--accent-ink);">When a SKU disappears from a sync, its row isn't deleted — <code class="inline" style="background:#fff;color:var(--accent-ink);">archivedAt</code> is stamped and the listing hides it, preserving its <code class="inline" style="background:#fff;color:var(--accent-ink);">costPrice</code>. If the SKU returns, the upsert clears <code class="inline" style="background:#fff;color:var(--accent-ink);">archivedAt</code> and it reactivates. The catalog is never nuked from a flaky zero-offer response.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SECURITY ============ -->
+<section id="security" class="anchor">
+  <div class="wrap">
+    <div class="sec-num">07</div>
+    <h2>Security &amp; secrets</h2>
+    <p class="sub">Two distinct crypto schemes for two distinct jobs, both in <code class="inline">crypto.util.ts</code>.</p>
+
+    <div class="grid3">
+      <div class="card">
+        <h4><span class="icon">#</span> Passwords</h4>
+        <p>App-user passwords are one-way <b>scrypt</b> hashes with a per-password 16-byte salt, stored as <code class="inline">scrypt$salt$hash</code>. Verification uses <code class="inline">timingSafeEqual</code>. Never reversible.</p>
+      </div>
+      <div class="card">
+        <h4><span class="icon">⚿</span> Kaspi secrets</h4>
+        <p>Cookies, tokens, login &amp; password are <b>AES-256-GCM</b> encrypted at rest (<code class="inline">gcm$iv$tag$cipher</code>) under <code class="inline">CREDENTIALS_ENC_KEY</code>. A dedicated <code class="inline">sellerView</code> projection guarantees ciphertext never leaves the service.</p>
+      </div>
+      <div class="card">
+        <h4><span class="icon">✓</span> SQL safety</h4>
+        <p>Drizzle parameterizes everything. The one raw fragment — <code class="inline">date_trunc</code>'s interval — is checked against an <code class="inline">INTERVALS</code> allowlist before it reaches SQL, so no user value is ever interpolated.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RUN ============ -->
+<section id="run" class="anchor">
+  <div class="wrap">
+    <div class="sec-num">08</div>
+    <h2>Configuration &amp; running</h2>
+    <p class="sub">Config is validated at boot — the app refuses to start if any required var is missing or malformed.</p>
+
+    <div class="io-label">Environment (.env)</div>
+    <div class="tablewrap"><table>
+      <tr><th>Variable</th><th>Required</th><th>Purpose</th></tr>
+      <tr><td class="field">DATABASE_URL</td><td><span class="req-tag">REQ</span></td><td>Postgres connection string.</td></tr>
+      <tr><td class="field">CREDENTIALS_ENC_KEY</td><td><span class="req-tag">REQ</span></td><td>32-byte base64/hex key (or passphrase) for AES-256-GCM.</td></tr>
+      <tr><td class="field">JWT_SECRET</td><td><span class="req-tag">REQ</span></td><td>HMAC secret for signing JWTs.</td></tr>
+      <tr><td class="field">PORT</td><td class="muted">opt</td><td>Default <span class="tnum">3000</span>.</td></tr>
+      <tr><td class="field">NODE_ENV</td><td class="muted">opt</td><td>development · production · test.</td></tr>
+    </table></div>
+
+    <div class="io-label">Bring it up</div>
+<pre><span class="c"># 1 · start Postgres 16</span>
+docker compose up -d db
+
+<span class="c"># 2 · apply migrations (Drizzle)</span>
+bun run db:migrate
+
+<span class="c"># 3 · run — watch mode for dev, or build + start for prod</span>
+bun run dev
+bun run build && bun run start
+
+<span class="c"># Swagger UI once running:</span>
+<span class="m">→</span> http://localhost:3000/docs</pre>
+
+    <h3>Scheduled work</h3>
+    <p><code class="inline">KaspiScheduler</code> registers one cron via <code class="inline">@nestjs/schedule</code>: <code class="inline">EVERY_HOUR</code> → <code class="inline">syncAllDue()</code>, which re-syncs every seller that has either a stored cookie or stored credentials. Sellers flagged <span class="pill warn">needs_reauth</span> self-heal on the next run if their credentials still work.</p>
+
+    <h3>Verified on 2026-07-08</h3>
+    <p>Typecheck clean · <code class="inline">nest build</code> passing · migrations applied · app boots with all 8 modules and 12 routes mapped. End-to-end smoke test passed: register → login → ingest (single + batch) → all three reports returned correct aggregates → Kaspi routes correctly gated by JWT.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    quick-analytics-back · v0.0.1 · NestJS 11 · Bun · Drizzle · PostgreSQL 16 &nbsp;·&nbsp; reference generated 2026-07-08
+  </div>
+</footer>

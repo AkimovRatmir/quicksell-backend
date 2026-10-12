@@ -1,0 +1,2 @@
+ALTER TABLE "kaspi_products" ADD COLUMN "archived_at" timestamp with time zone;--> statement-breakpoint
+CREATE INDEX "idx_kaspi_products_seller_archived" ON "kaspi_products" USING btree ("seller_id","archived_at");

@@ -1,0 +1,1 @@
+ALTER TABLE "sellers" ADD COLUMN "kaspi_code_required_at" timestamp with time zone;

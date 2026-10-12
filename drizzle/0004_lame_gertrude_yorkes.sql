@@ -1,0 +1,1 @@
+ALTER TABLE "sellers" ADD CONSTRAINT "uq_sellers_user_merchant" UNIQUE("user_id","kaspi_merchant_uid");
